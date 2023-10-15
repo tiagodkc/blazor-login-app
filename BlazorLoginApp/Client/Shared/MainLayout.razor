@@ -1,0 +1,35 @@
+﻿@using BlazorLoginApp.Client.Extensions;
+@using Microsoft.AspNetCore.Components.Authorization;
+
+@inherits LayoutComponentBase
+
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager navigationManager
+
+<div class="page">
+	<div class="sidebar">
+		<NavMenu />
+	</div>
+
+	<main>
+		<div class="top-row px-4">
+			<a @onclick="QuitSession" href="javascript:void(0)">Logout</a>
+		</div>
+
+		<article class="content px-4">
+			@Body
+		</article>
+	</main>
+</div>
+
+@code {
+	private async Task QuitSession()
+	{
+		var authenticationExtension = (AuthenticationExtension)authenticationStateProvider;
+
+		await authenticationExtension.UpdateAuthenticateState(null);
+
+		navigationManager.NavigateTo("/", true);
+	}
+
+}

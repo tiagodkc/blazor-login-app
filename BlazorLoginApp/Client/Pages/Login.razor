@@ -1,0 +1,58 @@
+﻿@using BlazorLoginApp.Client.Extensions
+@using BlazorLoginApp.Shared
+@using Microsoft.AspNetCore.Components.Authorization
+
+@page "/"
+
+@layout LoginLayout
+
+@inject HttpClient httpClient
+@inject AuthenticationStateProvider authenticationStateProvider
+@inject NavigationManager navigationManager
+
+<div class="row mt-5">
+
+	<div class="col-lg-4 offset-lg-4 border">
+
+		<div class="mb-3 mt-3 text-center">
+			<h3>LOGIN</h3>
+		</div>
+
+		<div class="mb-3">
+			<label>User</label>
+			<input @bind="userDTO.Name" class="form-control" />
+		</div>
+
+		<div class="mb-3">
+			<label>Password</label>
+			<input @bind="userDTO.Password" class="form-control" type="password" />
+		</div>
+
+		<div class="mb-3">
+			<button @onclick="StartSession" class="btn btn-primary">Login</button>
+		</div>
+
+	</div>
+
+</div>
+
+@code {
+	private UserDTO userDTO = new UserDTO();
+
+	private async Task StartSession()
+	{
+		var loginResponse = await httpClient.PostAsJsonAsync<UserDTO>("api/user/login", userDTO);
+
+		if (loginResponse.IsSuccessStatusCode)
+		{
+			var userSession = await loginResponse.Content.ReadFromJsonAsync<SessionDTO>();
+
+			var authenticationExtension = (AuthenticationExtension)authenticationStateProvider;
+
+			await authenticationExtension.UpdateAuthenticateState(userSession);
+
+			navigationManager.NavigateTo("/index");
+
+		}
+	}
+}
